@@ -90,8 +90,8 @@ npm run build
 
 ---
 ### env
-GOOGLE_CLIENT_ID=your_client_id_here
-GOOGLE_CLIENT_SECRET=your_client_secret_here
+VITE_GOOGLE_CLIENT_ID=701453233259-eoqpgfc81ddd2bmqba9ld3nttmfek8m1.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_SECRET=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
 VITE_URL_SERVER=http://localhost:5000
 VITE_BASE_API_URL=http://localhost:5000/api
 
