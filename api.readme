@@ -1,0 +1,151 @@
+# Kịch bản Test API - Module User & Auth
+
+Tài liệu này liệt kê các API liên quan đến Người dùng (User) và Xác thực (Auth) để phục vụ việc kiểm thử hệ thống.
+
+**Base URL:** `http://localhost:5000/api`
+
+---
+
+## 1. Authentication APIs (`/api/auth`)
+
+### 1.1 Đăng ký tài khoản
+- **Endpoint:** `POST /auth/register`
+- **Body:**
+```json
+{
+  "email": "testuser@example.com",
+  "username": "testuser",
+  "password": "Password123!",
+  "phone": "0987654321"
+}
+```
+
+### 1.2 Đăng nhập
+- **Endpoint:** `POST /auth/login`
+- **Body:**
+```json
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+```
+- **Lưu ý:** Sau khi đăng nhập thành công, hệ thống sẽ trả về `accessToken` và `refreshToken`. Token cũng được lưu vào Cookie.
+
+### 1.3 Lấy thông tin cá nhân (Đã đăng nhập)
+- **Endpoint:** `GET /auth/me`
+- **Headers:** `Authorization: Bearer <access_token>`
+
+### 1.4 Cập nhật Profile (Đã đăng nhập)
+- **Endpoint:** `PUT /auth/profile`
+- **Headers:** `Authorization: Bearer <access_token>`
+- **Body:**
+```json
+{
+  "full_name": "Nguyên Văn A",
+  "phone": "0123456789",
+  "address": "Hà Nội, Việt Nam",
+  "avatar": "https://example.com/avatar.png"
+}
+```
+
+### 1.5 Đổi mật khẩu (Đã đăng nhập)
+- **Endpoint:** `PUT /auth/change-password`
+- **Headers:** `Authorization: Bearer <access_token>`
+- **Body:**
+```json
+{
+  "old_password": "Password123!",
+  "new_password": "NewPassword123!"
+}
+```
+
+### 1.6 Quên mật khẩu
+- **Endpoint:** `POST /auth/forgot-password`
+- **Body:**
+```json
+{
+  "email": "testuser@example.com"
+}
+```
+
+### 1.7 Đặt lại mật khẩu (Dùng OTP từ email)
+- **Endpoint:** `POST /auth/reset-password`
+- **Body:**
+```json
+{
+  "email": "testuser@example.com",
+  "otp": "123456",
+  "new_password": "NewPassword123!"
+}
+```
+
+### 1.8 Làm mới Token
+- **Endpoint:** `POST /auth/refresh-token`
+- **Body (nếu không dùng cookie):**
+```json
+{
+  "refreshToken": "<your_refresh_token>"
+}
+```
+
+### 1.9 Đăng xuất
+- **Endpoint:** `POST /auth/logout`
+
+### 1.10 Đăng nhập Google
+- **Endpoint:** `POST /auth/google-login`
+- **Body:**
+```json
+{
+  "google_token": "<google_id_token>"
+}
+```
+
+---
+
+## 2. User APIs (`/api/users`)
+
+### 2.1 Lấy Profile công khai
+- **Endpoint:** `GET /users/profile/:identifier`
+- **Params:** `:identifier` có thể là `userId` hoặc `username`.
+- **Ví dụ:** `/api/users/profile/testuser`
+
+---
+
+## 3. Admin APIs (Yêu cầu quyền Admin)
+
+### 3.1 Lấy danh sách tất cả người dùng
+- **Endpoint:** `GET /users`
+- **Query Params:** `page`, `limit`, `search`, `is_active`
+- **Ví dụ:** `/api/users?page=1&limit=10&search=test`
+
+### 3.2 Cập nhật thông tin người dùng bất kỳ
+- **Endpoint:** `PUT /users/:id`
+- **Body:** (Tương tự update profile nhưng admin có thể đổi role, status)
+```json
+{
+  "is_active": true,
+  "role": "admin"
+}
+```
+
+### 3.3 Thống kê tổng số người dùng
+- **Endpoint:** `GET /users/stats/total`
+
+### 3.4 Cập nhật trạng thái kích hoạt (Active/Block)
+- **Endpoint:** `PUT /auth/users/status`
+- **Body:**
+```json
+{
+  "userId": 1,
+  "is_active": false
+}
+```
+
+---
+
+## 4. Kịch bản Test gợi ý (Test Flows)
+
+1.  **Luồng Đăng ký & Kích hoạt:** Đăng ký -> Nhận OTP (nếu có) -> Đăng nhập.
+2.  **Luồng Đổi mật khẩu:** Đăng nhập -> Đổi mật khẩu -> Đăng xuất -> Đăng nhập bằng mật khẩu mới.
+3.  **Luồng Admin Quản lý:** Admin đăng nhập -> Lấy danh sách user -> Block một user -> User đó thử đăng nhập lại (phải thất bại).
+4.  **Luồng Token:** Đăng nhập -> Đợi access token hết hạn -> Gọi refresh token -> Tiếp tục gọi API `/me`.
