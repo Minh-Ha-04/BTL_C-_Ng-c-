@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "test:coverage:html": "vitest run --coverage --coverage.reporter=html --coverage.reporter=text"
+  }
+}

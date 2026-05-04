@@ -414,7 +414,7 @@ class ReviewService {
     const reviewIds = currentReviews.map(review => review.id);
 
     const users = await User.findAll({
-      where: { id: userIds },
+      where: { id: userIds.filter((id): id is number => id !== null && id !== undefined) },
     });
     const userMap = users.reduce((acc: Record<number, any>, user) => {
       acc[user.id] = user.toJSON();
@@ -433,7 +433,7 @@ class ReviewService {
 
     const formattedReviews = currentReviews.map((review) => {
       const reviewData = review.toJSON();
-      const user = userMap[review.user_id] || null;
+      const user = typeof review.user_id === 'number' ? userMap[review.user_id] || null : null;
       const reviewImages = imagesByReview[review.id] || [];
       return this.formatReviewForFrontend(reviewData, user, reviewImages);
     });
@@ -712,7 +712,7 @@ class ReviewService {
     // Lấy thông tin user và images cho mỗi review - format theo cấu trúc frontend
     const userIds = reviews.map(review => review.user_id);
     const users = await User.findAll({
-      where: { id: userIds },
+      where: { id: userIds.filter((id): id is number => id !== null && id !== undefined) },
     });
 
     const userMap = users.reduce((acc: Record<number, any>, user) => {
@@ -734,7 +734,7 @@ class ReviewService {
 
     const formattedReviews = reviews.map((review) => {
       const reviewData = review.toJSON();
-      const user = userMap[review.user_id] || null;
+      const user = typeof review.user_id === 'number' ? userMap[review.user_id] || null : null;
       const reviewImages = imagesByReview[review.id] || [];
       return this.formatReviewForFrontend(reviewData, user, reviewImages);
     });

@@ -1,10 +1,11 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { VitePluginNode } from 'vite-plugin-node';
 
 export default defineConfig({
   server: {
     port: 5000,
   },
+
   plugins: [
     ...VitePluginNode({
       adapter: 'express',
@@ -13,16 +14,36 @@ export default defineConfig({
       tsCompiler: 'esbuild',
     }),
   ],
+
   test: {
     globals: true,
     environment: 'node',
+
+    bail: 0, // không dừng khi fail
+
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      include: ['src/services/**/*.ts', 'src/controllers/**/*.ts'],
+
+      // 👉 hiện terminal + html
+      reporter: ['text', 'html'],
+
+      include: [
+        'src/services/**/*.ts',
+      ],
+
+      exclude: [
+        'node_modules/',
+        'src/test/**/*.ts',
+        'src/services/googleAuthService.ts'
+      ],
+
+      reportsDirectory: './coverage',
+      skipFull: false,
     },
+
     setupFiles: ['./src/test/setup.ts'],
   },
+
   build: {
     target: 'esnext',
     outDir: 'dist',
@@ -48,8 +69,8 @@ export default defineConfig({
       ],
     },
   },
+
   optimizeDeps: {
     exclude: ['sequelize'],
   },
 });
-

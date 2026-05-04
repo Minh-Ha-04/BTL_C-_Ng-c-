@@ -1,5 +1,6 @@
 import { beforeAll, afterAll } from 'vitest';
 import sequelize from '../config/database';
+import '../models/index';
 
 beforeAll(async () => {
   try {
